@@ -1,0 +1,81 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function MovieApp() {
+  const [movieId, setMovieId] = useState('');
+  const [review, setReview] = useState('');
+  const [sentiment, setSentiment] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const register = async () => {
+    await axios.post('/register', { username, password });
+    alert('User registered successfully');
+  };
+
+  const login = async () => {
+    const res = await axios.post('/login', { username, password });
+    if (res.data.message === 'Login successful') {
+      setIsLoggedIn(true);
+      alert('Login successful');
+    } else {
+      alert('Invalid credentials');
+    }
+  };
+
+  const submitReview = async () => {
+    const res = await axios.post('/submit_review', {
+      movie_id: movieId,
+      review_text: review,
+    });
+    setSentiment(res.data.sentiment);
+  };
+
+  const getRecommendations = async () => {
+    const res = await axios.get('/recommend');
+    setRecommendations(res.data.recommended_movies);
+  };
+
+  return (
+    <div>
+      {!isLoggedIn ? (
+        <div>
+          <h2>Register / Login</h2>
+          <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)} />
+          <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+          <button onClick={register}>Register</button>
+          <button onClick={login}>Login</button>
+        </div>
+      ) : (
+        <div>
+          <h2>Submit a Movie Review</h2>
+          <input 
+            type="text" 
+            value={movieId} 
+            onChange={(e) => setMovieId(e.target.value)} 
+            placeholder="Enter Movie ID" 
+          />
+          <textarea 
+            value={review} 
+            onChange={(e) => setReview(e.target.value)} 
+            placeholder="Write your review here"
+          />
+          <button onClick={submitReview}>Submit Review</button>
+          {sentiment !== null && <p>Sentiment Score: {sentiment}</p>}
+
+          <h2>Recommended Movies</h2>
+          <button onClick={getRecommendations}>Get Recommendations</button>
+          <ul>
+            {recommendations.map(movie => (
+              <li key={movie.id}>{movie.title} ({movie.genre})</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default MovieApp;
