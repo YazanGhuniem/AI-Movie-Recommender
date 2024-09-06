@@ -1,0 +1,19 @@
+CREATE TABLE user (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(150) NOT NULL
+);
+
+CREATE TABLE movie (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    genre VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE review (
+    id SERIAL PRIMARY KEY,
+    movie_id INT REFERENCES movie(id),
+    user_id INT REFERENCES user(id),
+    review_text TEXT NOT NULL,
+    sentiment_score FLOAT
+);
